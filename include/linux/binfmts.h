@@ -156,82 +156,15 @@ extern int do_execveat(int, struct filename *,
 			int);
 int do_execve_file(struct file *file, void *__argv, void *__envp);
 
-static inline bool task_has_exec_prefix(struct task_struct *tsk, const char *prefix)
-{
-	struct file *exe_file;
-	const char *exe_name;
-	bool match = false;
-
-	exe_file = get_task_exe_file(tsk);
-	if (!exe_file)
-		return false;
-
-	exe_name = exe_file->f_path.dentry->d_name.name;
-	if (exe_name)
-		match = !strncmp(exe_name, prefix, strlen(prefix));
-
-	fput(exe_file);
-	return match;
-}
-
 static inline bool task_is_booster(struct task_struct *tsk)
 {
 	char comm[sizeof(tsk->comm)];
 
 	get_task_comm(comm, tsk);
 	return !strcmp(comm, "init") || !strcmp(comm, "NodeLooperThrea") ||
-	       !strcmp(comm, "power@1.2-servi") ||
 	       !strcmp(comm, "power@1.3-servi") ||
 	       !strcmp(comm, "perf@1.0-servic") ||
-	       !strcmp(comm, "perf@2.0-servic") ||
-	       !strcmp(comm, "perf@2.1-servic") ||
-	       !strcmp(comm, "perf@2.2-servic") ||
-	       !strcmp(comm, "power@2.0-servic") ||
-	       !strcmp(comm, "iop@") ||
-	       !strcmp(comm, "PERFD-SERVER") ||
-	       !strncmp(comm, "system_perf_ini", 9) ||
-	       task_has_exec_prefix(tsk, "init") ||
-	       task_has_exec_prefix(tsk, "NodeLooperThrea") ||
-	       task_has_exec_prefix(tsk, "power@1.2-servi") ||
-	       task_has_exec_prefix(tsk, "power@1.3-servi") ||
-	       task_has_exec_prefix(tsk, "perf@1.0-servic") ||
-	       task_has_exec_prefix(tsk, "perf@2.0-servic") ||
-	       task_has_exec_prefix(tsk, "perf@2.1-servic") ||
-	       task_has_exec_prefix(tsk, "perf@2.2-servic") ||
-	       task_has_exec_prefix(tsk, "power@2.0-servic") ||
-	       task_has_exec_prefix(tsk, "iop@") ||
-	       task_has_exec_prefix(tsk, "PERFD-SERVER") ||
-	       task_has_exec_prefix(tsk, "system_perf_ini");
-}
-
-static inline bool task_is_frequency_controller(struct task_struct *tsk)
-{
-	char comm[sizeof(tsk->comm)];
-
-	if (task_is_booster(tsk))
-		return true;
-
-	get_task_comm(comm, tsk);
-	return !strcmp(comm, "HyPerThread") ||
-	       !strcmp(comm, "argosd") ||
-	       task_has_exec_prefix(tsk, "vendor.samsung.hardware.hyper-service") ||
-	       task_has_exec_prefix(tsk, "argosd");
-}
-
-static inline bool task_controls_frequencies(struct task_struct *tsk)
-{
-	char comm[sizeof(tsk->comm)];
-
-	if (task_is_frequency_controller(tsk))
-		return true;
-	if (tsk->group_leader && tsk->group_leader != tsk &&
-	    task_is_frequency_controller(tsk->group_leader))
-		return true;
-
-	get_task_comm(comm, tsk);
-	return !strncmp(comm, "thermal_", 8) ||
-	       !strncmp(comm, "POSIX timer", 11) ||
-	       !strcmp(comm, "RenderEngine");
+	       !strcmp(comm, "init.qcom.post_");
 }
 
 #endif /* _LINUX_BINFMTS_H */
