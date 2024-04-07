@@ -31,6 +31,7 @@
 #include <linux/sec_debug.h>
 
 DEFINE_PER_CPU_SHARED_ALIGNED(struct rq, runqueues);
+<<<<<<< HEAD
 
 #ifdef CONFIG_SCHED_DEBUG
 /*
@@ -47,6 +48,10 @@ const_debug unsigned int sysctl_sched_features =
 	0;
 #undef SCHED_FEAT
 #endif
+=======
+DEFINE_PER_CPU(struct rnd_state, sched_rnd_state);
+DEFINE_PER_CPU_READ_MOSTLY(u64, dvfs_update_delay);
+>>>>>>> 9ccaeb959240 (BACKPORT: sched: cpufreq: Remove magic 1.25 headroom from apply_dvfs_headroom())
 
 /*
  * Number of tasks to iterate in a single balance run.
