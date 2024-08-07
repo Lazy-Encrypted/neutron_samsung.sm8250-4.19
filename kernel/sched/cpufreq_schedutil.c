@@ -897,10 +897,6 @@ static void sugov_tunables_save(struct cpufreq_policy *policy,
 			per_cpu(cached_tunables, cpu) = cached;
 	}
 
-	cached->pl = tunables->pl;
-	cached->hispeed_load = tunables->hispeed_load;
-	cached->rtg_boost_freq = tunables->rtg_boost_freq;
-	cached->hispeed_freq = tunables->hispeed_freq;
 	cached->up_rate_limit_us = tunables->up_rate_limit_us;
 	cached->down_rate_limit_us = tunables->down_rate_limit_us;
 }
@@ -1015,11 +1011,18 @@ static void sugov_exit(struct cpufreq_policy *policy)
 
 	count = gov_attr_set_put(&tunables->attr_set, &sg_policy->tunables_hook);
 	policy->governor_data = NULL;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 56f7e7b1de5d (cpufreq: schedutil: Store the cached ratelimits values)
 	if (!count) {
 		sugov_tunables_save(policy, tunables);
 		sugov_clear_global_tunables();
 	}
+<<<<<<< HEAD
 
+=======
+>>>>>>> 56f7e7b1de5d (cpufreq: schedutil: Store the cached ratelimits values)
 	mutex_unlock(&global_tunables_lock);
 
 	sugov_kthread_stop(sg_policy);
