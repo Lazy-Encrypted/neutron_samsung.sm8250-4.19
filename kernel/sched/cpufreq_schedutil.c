@@ -239,13 +239,12 @@ static inline unsigned long sugov_apply_dvfs_headroom(unsigned long util,
 {
 	unsigned long delta, headroom;
 	unsigned long capped_util = min(util, capacity);
-	unsigned long delta_t = capacity - threshold;
+	unsigned long delta_t = (capacity * 220) >> 10;
 
 	delta = capacity - capped_util;
-	headroom = (delta * delta * delta * 5) / (delta_t * capacity * 16);
 
-	/* 10% of capacity threshold */
-	min_util = capacity / 10;
+	headroom = min((delta_t * capped_util) / threshold,
+			(delta_t * delta) / (capacity - threshold));
 
 	/* Suppress boosting below the threshold */
 	if (util < min_util)
