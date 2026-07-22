@@ -18,8 +18,8 @@
 #include <uapi/linux/sched/types.h>
 #endif
 /* Duration (ms) of the max boost fired on each input event */
-#define INPUT_BOOST_DURATION_MS 500
-#define LPM_BIAS_HYST_BOOST_VALUE 500
+#define INPUT_BOOST_DURATION_MS 300
+#define LPM_BIAS_HYST_BOOST_VALUE 300
 enum {
 	SCREEN_OFF,
 	MAX_BOOST
