@@ -239,13 +239,13 @@ if CPU_EVENT_BOOST
 
 config INPUT_BOOST_DURATION_MS
 	int "Input boost duration"
-	default "300"
+	default "350"
 	help
 	  Input boost duration in milliseconds.
 
 config WAKE_BOOST_DURATION_MS
 	int "Wake boost duration"
-	default "0"
+	default "500"
 	help
 	  Wake boost duration in milliseconds.
 
