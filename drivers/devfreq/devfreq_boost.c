@@ -104,6 +104,30 @@ static void __devfreq_boost_kick_max(struct boost_dev *b,
 	}
 }
 
+ /* Same as __devfreq_boost_kick(), but lets the caller pick the boost
+ * duration instead of always using CONFIG_DEVFREQ_INPUT_BOOST_DURATION_MS.
+ * Useful for callers (e.g. cpu_event_boost) that want the DDR boost to
+ * expire in lockstep with their own CPU boost window.
+ */
+static void __devfreq_boost_kick_duration(struct boost_dev *b,
+					  unsigned int duration_ms)
+{
+	if (!READ_ONCE(b->df) || test_bit(SCREEN_OFF, &b->state))
+		return;
+	set_bit(INPUT_BOOST, &b->state);
+	if (!mod_delayed_work(system_unbound_wq, &b->input_unboost,
+			      msecs_to_jiffies(duration_ms))) {
+		/* Set the bit again in case we raced with the unboost worker */
+		set_bit(INPUT_BOOST, &b->state);
+		wake_up(&b->boost_waitq);
+	}
+}
+
+void devfreq_boost_kick_duration(enum df_device device, unsigned int duration_ms)
+{
+	struct df_boost_drv *d = &df_boost_drv_g;
+	__devfreq_boost_kick_duration(&d->devices[device], duration_ms);
+}
 void devfreq_boost_kick_max(enum df_device device, unsigned int duration_ms)
 {
 	struct df_boost_drv *d = &df_boost_drv_g;
