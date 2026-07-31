@@ -239,7 +239,7 @@ if CPU_EVENT_BOOST
 
 config INPUT_BOOST_DURATION_MS
 	int "Input boost duration"
-	default "350"
+	default "400"
 	help
 	  Input boost duration in milliseconds.
 
@@ -263,7 +263,7 @@ config INPUT_BOOST_FREQ_PERF
 
 config INPUT_BOOST_FREQ_PERFP
 	int "Prime cluster boost freq"
-	default "0"
+	default "1190400"
 	help
 	  Input boost frequency for the prime CPU cluster.
 
