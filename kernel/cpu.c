@@ -2440,9 +2440,6 @@ EXPORT_SYMBOL(__cpu_active_mask);
 struct cpumask __cpu_isolated_mask __read_mostly;
 EXPORT_SYMBOL(__cpu_isolated_mask);
 
-struct cpumask __cpu_isolated_mask __read_mostly;
-EXPORT_SYMBOL(__cpu_isolated_mask);
-
 #if CONFIG_LITTLE_CPU_MASK
 static const unsigned long lp_cpu_bits = CONFIG_LITTLE_CPU_MASK;
 const struct cpumask *const cpu_lp_mask = to_cpumask(&lp_cpu_bits);
