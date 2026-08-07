@@ -22,6 +22,7 @@ obj-y				+= pci/
 
 obj-$(CONFIG_PARISC)		+= parisc/
 obj-$(CONFIG_RAPIDIO)		+= rapidio/
+obj-$(CONFIG_CPU_INPUT_BOOST)		+= cpu_input_boost.o
 obj-$(CONFIG_VBUS_NOTIFIER)	+= staging/samsung/sec_notifier/
 obj-y				+= video/
 obj-y				+= idle/
