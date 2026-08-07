@@ -36,7 +36,18 @@
 
 
 #ifdef CONFIG_SEC_PM
+#ifdef CONFIG_THERMAL
 extern void *thermal_ipc_log;
+#else
+/*
+ * thermal_core.c (where thermal_ipc_log is defined) is only built
+ * when CONFIG_THERMAL=y. When it's disabled, provide our own
+ * definition here so SEC_PM code that references it still links.
+ * THERMAL_IPC_LOG() checks for NULL before logging, so this is a
+ * safe no-op.
+ */
+void *thermal_ipc_log;
+#endif
 #endif
 
 enum {
@@ -925,4 +936,3 @@ static int __init qcom_cpufreq_hw_init(void)
 subsys_initcall(qcom_cpufreq_hw_init);
 
 MODULE_DESCRIPTION("QCOM firmware-based CPU Frequency driver");
-
