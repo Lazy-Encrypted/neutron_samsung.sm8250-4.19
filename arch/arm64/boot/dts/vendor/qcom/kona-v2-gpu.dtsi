@@ -1,4 +1,4 @@
-soc {
+&soc {
 	msm_bus: qcom,kgsl-busmon {
 		label = "kgsl-busmon";
 		compatible = "qcom,kgsl-busmon";
