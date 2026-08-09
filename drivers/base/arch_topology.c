@@ -15,6 +15,7 @@
 #include <linux/slab.h>
 #include <linux/string.h>
 #include <linux/sched/topology.h>
+#include <linux/sched/sysctl.h>
 #include <linux/cpuset.h>
 
 #if IS_ENABLED(CONFIG_CPU_CAPACITY_FIXUP)
