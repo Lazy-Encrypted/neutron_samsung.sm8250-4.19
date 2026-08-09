@@ -2004,6 +2004,10 @@ extern void init_sched_fair_class(void);
 
 extern void reweight_task(struct task_struct *p, int prio);
 
+/* Ideal (target) scheduling slice for a CFS entity, used outside fair.c
+ * by schedutil for DVFS headroom heuristics. */
+extern u64 sched_slice(struct cfs_rq *cfs_rq, struct sched_entity *se);
+
 extern void resched_curr(struct rq *rq);
 extern void resched_cpu(int cpu);
 

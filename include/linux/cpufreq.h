@@ -310,6 +310,15 @@ struct cpufreq_driver {
 					unsigned int index);
 	unsigned int	(*fast_switch)(struct cpufreq_policy *policy,
 				       unsigned int target_freq);
+	/*
+	 * ->fast_switch() replacement for drivers that use an internal
+	 * representation of performance levels and can pass hints other than
+	 * the target performance level to the hardware.
+	 */
+	void		(*adjust_perf)(unsigned int cpu,
+				       unsigned long min_perf,
+				       unsigned long target_perf,
+				       unsigned long capacity);
 
 	/*
 	 * Caches and returns the lowest driver-supported frequency greater than
@@ -364,6 +373,8 @@ struct cpufreq_driver {
 /* flags */
 #define CPUFREQ_STICKY		(1 << 0)	/* driver isn't removed even if
 						   all ->init() calls failed */
+/* Alias used by newer schedutil code; same bit as CPUFREQ_STICKY */
+#define CPUFREQ_NEED_UPDATE_LIMITS	CPUFREQ_STICKY
 #define CPUFREQ_CONST_LOOPS	(1 << 1)	/* loops_per_jiffy or other
 						   kernel "constants" aren't
 						   affected by frequency
@@ -402,6 +413,7 @@ struct cpufreq_driver {
 #define CPUFREQ_NO_AUTO_DYNAMIC_SWITCHING (1 << 6)
 
 int cpufreq_register_driver(struct cpufreq_driver *driver_data);
+bool cpufreq_driver_test_flags(u16 flags);
 int cpufreq_unregister_driver(struct cpufreq_driver *driver_data);
 
 const char *cpufreq_get_current_driver(void);
@@ -542,6 +554,11 @@ struct cpufreq_governor {
 /* Pass a target to the cpufreq driver */
 unsigned int cpufreq_driver_fast_switch(struct cpufreq_policy *policy,
 					unsigned int target_freq);
+void cpufreq_driver_adjust_perf(unsigned int cpu,
+				unsigned long min_perf,
+				unsigned long target_perf,
+				unsigned long capacity);
+bool cpufreq_driver_has_adjust_perf(void);
 int cpufreq_driver_target(struct cpufreq_policy *policy,
 				 unsigned int target_freq,
 				 unsigned int relation);
@@ -589,6 +606,11 @@ struct gov_attr_set {
 	struct mutex update_lock;
 	int usage_count;
 };
+
+static inline struct gov_attr_set *to_gov_attr_set(struct kobject *kobj)
+{
+	return container_of(kobj, struct gov_attr_set, kobj);
+}
 
 /* sysfs ops for cpufreq governors */
 extern const struct sysfs_ops governor_sysfs_ops;

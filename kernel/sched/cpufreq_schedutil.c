@@ -357,8 +357,8 @@ static inline unsigned long sugov_apply_dvfs_headroom(unsigned long util, int cp
 	 * What is the possible worst case scenario for updating util_avg, ctx
 	 * switch or TICK?
 	 */
-	if (rq->cfs.h_nr_queued > 1) {
-		delay = min_t(u64, rq->curr->se.slice / 1000, TICK_USEC);
+	if (rq->cfs.h_nr_running > 1) {
+		delay = min_t(u64, sched_slice(&rq->cfs, &rq->curr->se) / 1000, TICK_USEC);
 		delay = max(delay, SUGOV_RATE_LIMIT_US);
 	} else {
 		delay = TICK_USEC;
@@ -726,6 +726,7 @@ static void sugov_irq_work(struct irq_work *irq_work)
 
 static struct sugov_tunables *global_tunables;
 static DEFINE_MUTEX(global_tunables_lock);
+static DEFINE_PER_CPU(struct sugov_tunables *, cached_tunables);
 
 static inline struct sugov_tunables *to_sugov_tunables(struct gov_attr_set *attr_set)
 {
@@ -915,8 +916,8 @@ static void sugov_tunables_save(struct cpufreq_policy *policy,
 			per_cpu(cached_tunables, cpu) = cached;
 	}
 
-	cached->up_rate_limit_us = tunables->up_rate_limit_us;
-	cached->down_rate_limit_us = tunables->down_rate_limit_us;
+	cached->rate_limit_us = tunables->rate_limit_us;
+	cached->response_time_ms = tunables->response_time_ms;
 }
 
 
