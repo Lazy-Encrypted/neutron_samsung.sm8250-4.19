@@ -7551,7 +7551,6 @@ compute_energy(struct task_struct *p, int dst_cpu, struct perf_domain *pd)
 {
 	unsigned int max_util, cpu_util, cpu_cap;
 	unsigned long sum_util, energy = 0;
-	unsigned long min, max;
 	int cpu;
 
 	for (; pd; pd = pd->next) {
@@ -7580,6 +7579,7 @@ compute_energy(struct task_struct *p, int dst_cpu, struct perf_domain *pd)
 			sum_util += cpu_util;
 #else
 			unsigned int util_cfs;
+            unsigned long min, max;
 
 			util_cfs = cpu_util_next(cpu, p, dst_cpu);
 
