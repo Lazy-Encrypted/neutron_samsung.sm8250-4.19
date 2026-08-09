@@ -1,0 +1,48 @@
+--- a/kernel/sched/pelt.c
++++ b/kernel/sched/pelt.c
+@@ -408,3 +408,45 @@
+ 	return ret;
+ }
+ #endif
++
++
++/*
++ * Approximate the new util_avg value assuming an entity has continued to run
++ * for @delta us. Adapted to this tree's pre-PELT_MIN_DIVIDER pelt.c: the
++ * baseline divider at period_contrib == 0 is (LOAD_AVG_MAX - 1024), matching
++ * what ___update_load_avg() computes here, and the extra 'runnable' arg is
++ * simply left at 0 since this is a util-only estimate.
++ */
++unsigned long approximate_util_avg(unsigned long util, u64 delta)
++{
++	struct sched_avg sa = {
++		.util_sum = util * (LOAD_AVG_MAX - 1024),
++		.util_avg = util,
++	};
++
++	if (unlikely(!delta))
++		return util;
++
++	accumulate_sum(delta, &sa, 1, 0, 1);
++	___update_load_avg(&sa, 0, 0);
++
++	return sa.util_avg;
++}
++
++/*
++ * Approximate the required amount of runtime in ms required to reach @util.
++ */
++u64 approximate_runtime(unsigned long util)
++{
++	struct sched_avg sa = {};
++	u64 delta = 1024; // period = 1024 = ~1ms
++	u64 runtime = 0;
++
++	while (sa.util_avg < util) {
++		accumulate_sum(delta, &sa, 1, 0, 1);
++		___update_load_avg(&sa, 0, 0);
++		runtime++;
++	}
++
++	return runtime;
++}
