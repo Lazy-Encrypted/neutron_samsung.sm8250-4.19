@@ -604,7 +604,7 @@ static inline bool sugov_cpu_is_busy(struct sugov_cpu *sg_cpu) { return false; }
 #endif /* CONFIG_NO_HZ_COMMON */
 
 #define NL_RATIO 75
-#define DEFAULT_HISPEED_LOAD 90
+#define DEFAULT_HISPEED_LOAD 65
 #define DEFAULT_CPU0_RTG_BOOST_FREQ 1000000
 #define DEFAULT_CPU4_RTG_BOOST_FREQ 0
 #define DEFAULT_CPU7_RTG_BOOST_FREQ 0
@@ -1256,10 +1256,13 @@ static int sugov_init(struct cpufreq_policy *policy)
 		goto stop_kthread;
 	}
 
-	tunables->up_rate_limit_us = cpufreq_policy_transition_delay_us(policy);
-	tunables->down_rate_limit_us = cpufreq_policy_transition_delay_us(policy);
+	tunables->up_rate_limit_us = 1000;
+	tunables->down_rate_limit_us = 2000;
 	tunables->hispeed_load = DEFAULT_HISPEED_LOAD;
-	tunables->hispeed_freq = 0;
+	/* hispeed_freq = 0 makes the hispeed_load jump a no-op (target
+	 * util ends up 0). Default it to 85% of this policy's max so the
+	 * jump-to-hispeed path actually does something out of the box. */
+	tunables->hispeed_freq = mult_frac(policy->cpuinfo.max_freq, 85, 100);
 
 	switch (policy->cpu) {
 	default:
