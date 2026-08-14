@@ -5692,7 +5692,8 @@ static void dequeue_task_fair(struct rq *rq, struct task_struct *p, int flags)
 		dec_rq_walt_stats(rq, p);
 	}
 
-	util_est_dequeue(&rq->cfs, p, task_sleep);
+	util_est_dequeue(&rq->cfs, p);
+	util_est_update(&rq->cfs, p, task_sleep);
 	hrtick_update(rq);
 }
 
