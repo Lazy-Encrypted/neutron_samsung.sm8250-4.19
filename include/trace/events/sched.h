@@ -1169,8 +1169,8 @@ TRACE_EVENT(sched_util_est_task,
 		__entry->pid			= tsk->pid;
 		__entry->cpu			= task_cpu(tsk);
 		__entry->util_avg		= avg->util_avg;
-		__entry->est_enqueued		= avg->util_est.enqueued;
-		__entry->est_ewma		= avg->util_est.ewma;
+		__entry->est_enqueued           = avg->util_est & ~UTIL_AVG_UNCHANGED;
+		__entry->est_ewma               = avg->util_est & ~UTIL_AVG_UNCHANGED;
 	),
 
 	TP_printk("comm=%s pid=%d cpu=%d util_avg=%u util_est_ewma=%u util_est_enqueued=%u",
@@ -1200,7 +1200,7 @@ TRACE_EVENT(sched_util_est_cpu,
 	TP_fast_assign(
 		__entry->cpu			= cpu;
 		__entry->util_avg		= cfs_rq->avg.util_avg;
-		__entry->util_est_enqueued	= cfs_rq->avg.util_est.enqueued;
+		__entry->util_est_enqueued      = cfs_rq->avg.util_est;
 	),
 
 	TP_printk("cpu=%d util_avg=%u util_est_enqueued=%u",
