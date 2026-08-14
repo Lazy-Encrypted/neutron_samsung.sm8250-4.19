@@ -2161,7 +2161,7 @@ static inline unsigned long task_util(struct task_struct *p)
 
 static inline unsigned long task_runnable(struct task_struct *p)
 {
-	return READ_ONCE(p->se.avg.runnable_avg);
+	return READ_ONCE(p->se.avg.runnable_load_avg);
 }
 
 /**
