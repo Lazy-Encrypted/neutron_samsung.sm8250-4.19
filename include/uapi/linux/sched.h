@@ -68,4 +68,8 @@
 			 SCHED_FLAG_KEEP_ALL		| \
 			 SCHED_FLAG_UTIL_CLAMP)
 
+struct sched_param {
+	int sched_priority;
+};
+
 #endif /* _UAPI_LINUX_SCHED_H */
