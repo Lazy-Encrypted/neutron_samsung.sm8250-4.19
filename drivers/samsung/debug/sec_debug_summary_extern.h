@@ -15,7 +15,7 @@ extern const unsigned long kallsyms_markers[] __weak;
 
 /* kernel/sched/walt.c */
 #ifdef CONFIG_SCHED_WALT
-#include "../../kernel/sched/sched.h"
+#include "../../../kernel/sched/sched.h"
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,4,0)
 extern struct walt_sched_cluster *sched_cluster[NR_CPUS];
 #else
