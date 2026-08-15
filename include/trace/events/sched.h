@@ -9,6 +9,7 @@
 #include <linux/tracepoint.h>
 #include <linux/binfmts.h>
 #include <linux/sched/idle.h>
+#include <linux/kthread.h>
 
 /*
  * Tracepoint for calling kthread_stop, performed to end a kthread:
