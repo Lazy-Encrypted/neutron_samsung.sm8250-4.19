@@ -25,6 +25,35 @@
  * satisfy the overall load at any given moment.
  */
 
+/* Extern arrays declared in kernel/sched/fair.c */
+extern unsigned int sched_capacity_margin_up[NR_CPUS];
+
+static inline bool fits_capacity(unsigned long util, int cpu)
+{
+	return capacity_orig_of(cpu) * 1024 > util * sched_capacity_margin_up[cpu];
+}
+
+static inline bool choose_idle_cpu(int cpu, struct task_struct *p)
+{
+	return available_idle_cpu(cpu);
+}
+
+/*
+ * Stubs: this tree has no thermal-pressure PELT signal or min-freq
+ * capacity clamp infra. Even on a tree that had it, r8q has no QCOM
+ * thermal mitigation driver feeding arch_scale_thermal_pressure(),
+ * so it would read 0 anyway. Revisit if that ever changes.
+ */
+static inline unsigned long thermal_load_avg(struct rq *rq)
+{
+	return 0;
+}
+
+static inline unsigned long arch_scale_min_freq_capacity(int cpu)
+{
+	return SCHED_CAPACITY_SCALE;
+}
+
 struct cass_cpu_cand {
 	int cpu;
 	unsigned int exit_lat;
@@ -90,7 +119,7 @@ bool cass_prime_cpu(const struct cass_cpu_cand *c)
 	 * the same original capacity as the prior CPU, then it is prime.
 	 */
 	return c->cpu == nr_cpu_ids - 1 &&
-	       arch_scale_cpu_capacity(nr_cpu_ids - 2) != SCHED_CAPACITY_SCALE;
+	       arch_scale_cpu_capacity(NULL, nr_cpu_ids - 2) != SCHED_CAPACITY_SCALE;
 }
 
 /* Returns true if @a is a better CPU than @b */
@@ -264,7 +293,7 @@ static int cass_best_cpu(struct task_struct *p, int prev_cpu, bool sync, bool rt
 		struct rq *rq = cpu_rq(cpu);
 
 		/* Get the original, maximum _possible_ capacity of this CPU */
-		curr->cap_orig = arch_scale_cpu_capacity(cpu);
+		curr->cap_orig = arch_scale_cpu_capacity(NULL, cpu);
 
 		/* Get the _current_, throttled maximum capacity of this CPU */
 		curr->cap_max = curr->cap_orig - thermal_load_avg(rq);
@@ -398,9 +427,24 @@ static int cass_select_task_rq(struct task_struct *p, int prev_cpu,
 }
 
 static int cass_select_task_rq_fair(struct task_struct *p, int prev_cpu,
-				    int wake_flags)
+				    int sd_flag, int wake_flags,
+				    int sibling_count_hint)
 {
-	return cass_select_task_rq(p, prev_cpu, wake_flags, false);
+	bool sync;
+	(void)sibling_count_hint;
+
+	/* Dont balance on exec since we dont know what @p will look like */
+	if (sd_flag & SD_BALANCE_EXEC)
+		return prev_cpu;
+
+	if (unlikely(!cpumask_intersects(&p->cpus_allowed, cpu_active_mask)))
+		return cpumask_first(&p->cpus_allowed);
+
+	if (!(sd_flag & SD_BALANCE_FORK))
+		sync_entity_load_avg(&p->se);
+
+	sync = (wake_flags & WF_SYNC) && !(current->flags & PF_EXITING);
+	return cass_best_cpu(p, prev_cpu, sync, false);
 }
 
 int cass_select_task_rq_rt(struct task_struct *p, int prev_cpu, int wake_flags)
